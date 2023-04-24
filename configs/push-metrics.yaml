@@ -1,0 +1,52 @@
+# Copyright 2023 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https:#www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# push-metrics.yaml: This config receives metrics sent in OTLP format
+# and exports them to GMP. The Service Name and Instance ID are added
+# as attributes to provide a unique resource and prevent metric
+# collisions.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  # automatically detect Cloud Run resource metadata
+  resourcedetection:
+    detectors: [env, gcp]
+    timeout: 2s
+    override: false
+
+  resource:
+    attributes:
+      # add instance_id as a resource attribute
+    - key: service.instance.id
+      from_attribute: faas.id
+      action: upsert
+      # parse service name from K_SERVICE Cloud Run variable
+    - key: service.name
+      value: ${env:K_SERVICE}
+      action: insert
+
+exporters:
+  googlemanagedprometheus: # Note: this is intentionally left blank
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [resourcedetection, resource]
+      exporters: [googlemanagedprometheus]
