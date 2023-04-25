@@ -35,12 +35,16 @@ processors:
         value: ${env:K_SERVICE}
         action: insert
 
+extensions:
+  health_check:
+
 exporters:
   googlecloud:
     log:
       default_log_name: my-sample-app
 
 service:
+  extensions: [health_check]
   pipelines:
     logs:
       receivers: [filelog, otlp]

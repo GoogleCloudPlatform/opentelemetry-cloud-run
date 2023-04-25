@@ -63,7 +63,11 @@ processors:
 exporters:
   googlemanagedprometheus: # Note: this is intentionally left blank
 
+extensions:
+  health_check:
+
 service:
+  extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp]
