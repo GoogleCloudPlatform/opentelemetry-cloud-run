@@ -63,7 +63,11 @@ exporters:
       default_log_name: ltm-sample-app
   googlemanagedprometheus:
 
+extensions:
+  health_check:
+
 service:
+  extensions: [health_check]
   pipelines:
     traces:
       receivers: [otlp]
