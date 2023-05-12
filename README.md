@@ -1,9 +1,12 @@
 # Deploy a Cloud Run Service with OpenTelemetry
 
 This guide shows how to run the OpenTelemetry Collector to collect metrics,
-traces, and logs in a Cloud Run deployment. This uses the Cloud Run
-multicontainer feature to run the Collector as a sidecar container alongside
-your workload container.
+traces, and logs in a Cloud Run deployment. This uses the **Cloud Run
+multicontainer (sidecar) feature** to run the Collector as a sidecar container
+alongside your workload container.
+
+[Learn more about sidecars in Cloud Run (currently a preview feature)
+here.](https://cloud.google.com/run/docs/deploying#multicontainer)
 
 ## Getting started
 
