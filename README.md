@@ -29,7 +29,24 @@ minimum, the following IAM roles:
 
 The default Compute Engine Service Account has these roles already.
 
-### Build the sample app
+### Run sample via Cloud Build
+
+The following commands does all prerequisites set up, build and deploy containers to Cloud Run. The whole process runs on Cloud Build, so macOS and Windows users can deploy the sample without any tricky configuration changes.
+
+```console
+./init.sh
+gcloud builds submit . --config=cloudbuild.yaml
+```
+
+After the build, run the following command to check the endpoint URL.
+
+```console
+gcloud run services describe opentelemetry-cloud-run-sample --region=us-east1 --format="value(status.url)"
+```
+
+### Run sample manually
+
+#### Build the sample app
 
 The `app` directory contains a sample app written in Go. This app generates some
 simple metrics, traces, and writes logs to a local file. It is instrumented with
@@ -47,6 +64,7 @@ gcloud artifacts repositories create run-otel-example \
 ```
 
 Authenticate your Docker client with `gcloud`:
+
 ```
 gcloud auth configure-docker \
     us-east1-docker.pkg.dev
@@ -61,7 +79,7 @@ docker push us-east1-docker.pkg.dev/$GCP_PROJECT/run-otel-example/sample-app
 popd
 ```
 
-### Build the Collector image
+#### Build the Collector image
 
 The `collector` directory contains a Dockerfile and OpenTelemetry Collector
 config file. The Dockerfile builds a Collector image that bundles the local
@@ -76,7 +94,7 @@ docker push us-east1-docker.pkg.dev/$GCP_PROJECT/run-otel-example/collector
 popd
 ```
 
-### Create the Cloud Run Service
+#### Create the Cloud Run Service
 
 The `run-service.yaml` file defines a multicontainer Cloud Run Service with the
 sample app and Collector images built above.
