@@ -90,6 +90,13 @@ images:
   - ${_IMAGE_APP}
   - ${_IMAGE_COLLECTOR}
 
+# comment out the following line if you want to run Cloud Build with the existing
+# service account with the following roles.
+# * roles/iam.serviceAccountUser
+# * roles/storage.objectViewer
+# * roles/logging.logWriter
+# * roles/artifactregistry.createOnPushWriter
+# * roles/run.admin
 serviceAccount: "projects/${PROJECT_ID}/serviceAccounts/${_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 options:

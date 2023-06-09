@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2023 Yoshi Yamaguchi
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,12 +18,6 @@ set -ex
 PROJECT_ID=$(gcloud config get-value project)
 SA_NAME="run-otel-example-sa"
 REGION="us-east1"
-
-gcloud services enable cloudbuild.googleapis.com --quiet
-gcloud services enable artifactregistry.googleapis.com --quiet
-gcloud services enable run.googleapis.com --quiet
-gcloud services enable cloudtrace.googleapis.com --quiet
-gcloud services enable monitoring.googleapis.com --quiet
 
 #### Create service account with required roles
 gcloud iam service-accounts create "${SA_NAME}" \
