@@ -15,9 +15,18 @@ exports telemetry data to GMP and Cloud Trace.
 
 ### Prerequisites
 
-* Enable the Cloud Run API in your GCP project.
-* Enable the Artifact Registry API in your GCP project.
-* Authenticate with your GCP project in a local terminal.
+* Enable the Cloud Run API in your Google Cloud project.
+* Enable the Artifact Registry API in your Google Cloud project.
+* Authenticate with your Google Cloud project in a local terminal.
+
+To enable the depending service APIs with `gcloud` command, you can the following commands.
+
+```console
+gcloud services enable run.googleapis.com --quiet
+gcloud services enable artifactregistry.googleapis.com --quiet
+gcloud services enable cloudtrace.googleapis.com --quiet
+gcloud services enable monitoring.googleapis.com --quiet
+```
 
 To run the sample app, you will also need to make sure your [Cloud Run Service
 Account](https://cloud.google.com/run/docs/configuring/service-accounts) has, at
@@ -29,7 +38,40 @@ minimum, the following IAM roles:
 
 The default Compute Engine Service Account has these roles already.
 
-### Build the sample app
+### Run sample
+
+#### Cloud Build
+
+Because this sample requires `docker` or similar container build system for Linux runtime, you can use Cloud Build when you are trying without local Docker support. To enable Cloud Build, you need to enable Cloud Build API in your Google Cloud project.
+
+```console
+gcloud services enable cloudbuild.googleapis.com --quiet
+```
+
+The bundled configuration file for Cloud Build (`cloudbuild.yaml`) requires a new servcie account with the following roles or stronger:
+
+* `roles/iam.serviceAccountUser`
+* `roles/storage.objectViewer`
+* `roles/logging.logWriter`
+* `roles/artifactregistry.createOnPushWriter`
+* `roles/run.admin`
+
+Running `create-service-account.sh` creates a new service account `run-otel-example-sa@<project-id>.iam.gserviceaccount.com` for you. Then launch a Cloud Build task with `gcloud` command.
+
+```console
+./create-service-account.sh
+gcloud builds submit . --config=cloudbuild.yaml
+```
+
+After the build, run the following command to check the endpoint URL.
+
+```console
+gcloud run services describe opentelemetry-cloud-run-sample --region=us-east1 --format="value(status.url)"
+```
+
+#### Build and Run Manually
+
+##### Build the sample app
 
 The `app` directory contains a sample app written in Go. This app generates some
 simple metrics, traces, and writes logs to a local file. It is instrumented with
@@ -47,6 +89,7 @@ gcloud artifacts repositories create run-otel-example \
 ```
 
 Authenticate your Docker client with `gcloud`:
+
 ```
 gcloud auth configure-docker \
     us-east1-docker.pkg.dev
@@ -61,7 +104,7 @@ docker push us-east1-docker.pkg.dev/$GCP_PROJECT/run-otel-example/sample-app
 popd
 ```
 
-### Build the Collector image
+##### Build the Collector image
 
 The `collector` directory contains a Dockerfile and OpenTelemetry Collector
 config file. The Dockerfile builds a Collector image that bundles the local
@@ -76,7 +119,7 @@ docker push us-east1-docker.pkg.dev/$GCP_PROJECT/run-otel-example/collector
 popd
 ```
 
-### Create the Cloud Run Service
+##### Create the Cloud Run Service
 
 The `run-service.yaml` file defines a multicontainer Cloud Run Service with the
 sample app and Collector images built above.
@@ -98,6 +141,13 @@ gcloud run services replace run-service.yaml
 This command will return an external URL for your Service’s endpoint. Save this
 and use it in the next section to trigger the sample app so you can see the
 telemetry collected by OpenTelemetry.
+
+Finally before you make make the request to the URL, you need to change
+the Cloud Run service policy to accept unauthenticated HTTP access.
+
+```
+gcloud run services set-iam-policy opentelemetry-cloud-run-sample policy.yaml
+```
 
 ### View telemetry in Google Cloud
 
@@ -143,3 +193,14 @@ be applied to common use cases in GCP.
 To use these configs, replace `collector/collector-config.yaml` with the file
 you want and follow the steps above starting from Build the Collector Image to
 bundle and deploy your new config.
+
+### Clean up
+
+After running the demo, please make sure to clean up your project so that you don't consume unexpected resources and get charged.
+
+```console
+gcloud run services delete opentelemetry-cloud-run-sample --region us-east1 --quiet
+gcloud artifacts repositories delete run-otel-example \
+  --location=us-east1 \
+  --quiet
+```
