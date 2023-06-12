@@ -71,7 +71,7 @@ gcloud run services describe opentelemetry-cloud-run-sample --region=us-east1 --
 
 #### Build and Run Manually
 
-##### Buildthe sample app
+##### Build the sample app
 
 The `app` directory contains a sample app written in Go. This app generates some
 simple metrics, traces, and writes logs to a local file. It is instrumented with
