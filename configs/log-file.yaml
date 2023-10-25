@@ -29,11 +29,6 @@ processors:
     detectors: [env, gcp]
     timeout: 2s
     override: false
-  resource:
-    attributes:
-      - key: service.name
-        value: ${env:K_SERVICE}
-        action: insert
 
 extensions:
   health_check:
@@ -48,5 +43,5 @@ service:
   pipelines:
     logs:
       receivers: [filelog, otlp]
-      processors: [resourcedetection, resource]
+      processors: [resourcedetection]
       exporters: [googlecloud]
