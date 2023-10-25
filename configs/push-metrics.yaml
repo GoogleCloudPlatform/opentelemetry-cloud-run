@@ -30,17 +30,6 @@ processors:
     timeout: 2s
     override: false
 
-  resource:
-    attributes:
-      # add instance_id as a resource attribute
-    - key: service.instance.id
-      from_attribute: faas.id
-      action: upsert
-      # parse service name from K_SERVICE Cloud Run variable
-    - key: service.name
-      value: ${env:K_SERVICE}
-      action: insert
-
 exporters:
   googlemanagedprometheus: # Note: this is intentionally left blank
 
@@ -52,5 +41,5 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
-      processors: [resourcedetection, resource]
+      processors: [resourcedetection]
       exporters: [googlemanagedprometheus]

@@ -27,11 +27,6 @@ processors:
     detectors: [env, gcp]
     timeout: 2s
     override: false
-  resource:
-    attributes:
-      - key: service.name
-        value: ${env:K_SERVICE}
-        action: insert
 
 exporters:
   googlecloud: # Note: this is intentionally left blank
@@ -44,5 +39,5 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resourcedetection, resource]
+      processors: [resourcedetection]
       exporters: [googlecloud]
