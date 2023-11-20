@@ -20,6 +20,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -32,6 +34,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// Create channel to listen for signals.
+var signalChan chan (os.Signal) = make(chan os.Signal, 1)
 var counter instrument.Int64Counter
 
 func main() {
@@ -70,8 +74,31 @@ func main() {
 		log.Fatalf("Error creating counter: %s", err)
 	}
 
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// SIGINT handles Ctrl+C locally.
+	// SIGTERM handles Cloud Run termination signal.
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Start HTTP server.
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: http.HandlerFunc(handler),
+	}
+	go func() {
+		http.HandleFunc("/", handler)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	// Receive output from signalChan.
+	sig := <-signalChan
+	log.Printf("%s signal caught. Graceful Shutdown.", sig)
+
+	// Gracefully shutdown the server by waiting on existing requests (except websockets).
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Printf("server shutdown failed: %+v", err)
+	}
+	log.Print("server exited")
 }
 
 func traceLogPrefix(traceId, spanId string) string {
