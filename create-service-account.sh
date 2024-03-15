@@ -23,26 +23,31 @@ REGION="us-east1"
 gcloud iam service-accounts create "${SA_NAME}" \
   --description="A service account just to used for Cloud Run observability demo. https://github.com/GoogleCloudPlatform/opentelemetry-cloud-run" \
   --display-name="Cloud Run OpenTelemetry demo service account" \
+  --condition=None \
   --quiet
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountUser" \
+  --condition=None \
   --quiet
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
-  --role="roles/storage.objectViewer" \
+  --role="roles/storage.objectUser" \
+  --condition=None \
   --quiet
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/logging.logWriter" \
+  --condition=None \
   --quiet
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/artifactregistry.createOnPushWriter" \
+  --condition=None \
   --quiet
 
 # In order to change policy of the run service, it requires 'run.services.setIamPolicy',
@@ -50,6 +55,13 @@ gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/run.admin" \
+  --condition=None \
+  --quiet
+
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+  --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/run.serviceAgent" \
+  --condition=None \
   --quiet
 
 #### Create artifact registry

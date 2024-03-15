@@ -17,7 +17,7 @@ kind: Service
 metadata:
   annotations:
     run.googleapis.com/launch-stage: ALPHA
-  name: opentelemetry-cloud-run-sample
+  name: "%SERVICE_NAME%"
 spec:
   template:
     metadata:
@@ -26,25 +26,24 @@ spec:
         run.googleapis.com/container-dependencies: '{"app":["collector"]}'
     spec:
       containers:
-      - image: "%SAMPLE_APP_IMAGE%"
-        name: app
-        ports:
-        - containerPort: 8080
-        volumeMounts:
-        - mountPath: /logging
-          name: shared-logs
-      - image: "%OTELCOL_IMAGE%"
-        name: collector
-        startupProbe:
-          httpGet:
-            path: /
-            port: 13133
-        volumeMounts:
-        - mountPath: /logging
-          name: shared-logs
+        - image: "%SAMPLE_APP_IMAGE%"
+          name: app
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /logging
+              name: shared-logs
+        - image: "%OTELCOL_IMAGE%"
+          name: collector
+          startupProbe:
+            httpGet:
+              path: /
+              port: 13133
+          volumeMounts:
+            - mountPath: /logging
+              name: shared-logs
       volumes:
-      - name: shared-logs
-        emptyDir:
-          medium: Memory
-          sizeLimit: 512Mi
-
+        - name: shared-logs
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
