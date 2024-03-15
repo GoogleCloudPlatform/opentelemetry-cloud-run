@@ -14,48 +14,56 @@
 
 steps:
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "${_IMAGE_APP}", "./app"]
+    env:
+      - "IMAGE_APP=${_IMAGE_APP}"
+    script: |
+      docker build -t ${IMAGE_APP} ./app
     id: BUILD_SAMPLE_APP
     waitFor: ["-"]
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "${_IMAGE_APP}"]
+    env:
+      - "IMAGE_APP=${_IMAGE_APP}"
+    script: |
+      docker push ${IMAGE_APP}
     id: PUSH_SAMPLE_APP
     waitFor:
       - BUILD_SAMPLE_APP
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "${_IMAGE_COLLECTOR}", "./collector"]
+    env:
+      - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
+    script: |
+      docker build -t ${IMAGE_COLLECTOR} ./collector
     id: BUILD_COLLECTOR
     waitFor: ["-"]
 
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "${_IMAGE_COLLECTOR}"]
+    env:
+      - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
+    script: |
+      docker push ${IMAGE_COLLECTOR}
     id: PUSH_COLLECTOR
     waitFor:
       - BUILD_COLLECTOR
 
   - name: "ubuntu"
     env:
+      - "SERVICE_NAME=${_SERVICE_NAME}"
       - "IMAGE_APP=${_IMAGE_APP}"
       - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
     script: |
+      sed -i s@%SERVICE_NAME%@${SERVICE_NAME}@g run-service.yaml
       sed -i s@%OTELCOL_IMAGE%@${IMAGE_COLLECTOR}@g run-service.yaml
       sed -i s@%SAMPLE_APP_IMAGE%@${IMAGE_APP}@g run-service.yaml
     id: REPLACE_YAML_VALUE
     waitFor: ["-"]
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
-    entrypoint: gcloud
-    args:
-      [
-        "run",
-        "services",
-        "replace",
-        "run-service.yaml",
-        "--region",
-        "${_REGION}",
-      ]
+    env:
+      - "REGION=${_REGION}"
+    script: |
+      gcloud run services replace run-service.yaml --region ${REGION} --quiet
     id: DEPLOY_MULTICONTAINER
     waitFor:
       - PUSH_SAMPLE_APP
@@ -63,23 +71,17 @@ steps:
       - REPLACE_YAML_VALUE
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
-    entrypoint: gcloud
-    args:
-      [
-        "run",
-        "services",
-        "set-iam-policy",
-        "opentelemetry-cloud-run-sample",
-        "policy.yaml",
-        "--region",
-        "${_REGION}",
-        "--quiet",
-      ]
+    env:
+      - "REGION=${_REGION}"
+      - "SERVICE_NAME=${_SERVICE_NAME}"
+    script: |
+      gcloud run services set-iam-policy ${SERVICE_NAME} policy.yaml --region ${REGION} --quiet
     id: ALLOW_UNAUTHENTICATED
     waitFor:
       - DEPLOY_MULTICONTAINER
 
 substitutions:
+  _SERVICE_NAME: opentelemetry-cloud-run-sample
   _REGION: us-east1
   _REGISTRY: ${_REGION}-docker.pkg.dev/${PROJECT_ID}/run-otel-example
   _IMAGE_APP: ${_REGISTRY}/sample-app
