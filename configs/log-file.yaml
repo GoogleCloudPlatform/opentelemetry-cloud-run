@@ -21,7 +21,7 @@ receivers:
       grpc:
       http:
   filelog:
-    include: [ /logging/*.log ]
+    include: [/logging/*.log]
     start_at: beginning
 
 processors:
@@ -32,6 +32,7 @@ processors:
 
 extensions:
   health_check:
+    endpoint: 0.0.0.0:13133
 
 exporters:
   googlecloud:
