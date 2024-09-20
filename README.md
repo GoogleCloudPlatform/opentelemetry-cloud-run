@@ -5,8 +5,7 @@ traces, and logs in a Cloud Run deployment. This uses the **Cloud Run
 multicontainer (sidecar) feature** to run the Collector as a sidecar container
 alongside your workload container.
 
-[Learn more about sidecars in Cloud Run (currently a preview feature)
-here.](https://cloud.google.com/run/docs/deploying#multicontainer)
+[Learn more about sidecars in Cloud Run here.](https://cloud.google.com/run/docs/deploying#sidecars)
 
 ## Getting started
 
