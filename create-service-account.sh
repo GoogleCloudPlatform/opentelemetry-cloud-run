@@ -23,7 +23,6 @@ REGION="us-east1"
 gcloud iam service-accounts create "${SA_NAME}" \
   --description="A service account just to used for Cloud Run observability demo. https://github.com/GoogleCloudPlatform/opentelemetry-cloud-run" \
   --display-name="Cloud Run OpenTelemetry demo service account" \
-  --condition=None \
   --quiet
 
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
