@@ -21,9 +21,9 @@ receivers:
   otlp:
     protocols:
       grpc:
-        0.0.0.0:4317
+        endpoint: 0.0.0.0:4317
       http:
-        0.0.0.0:4318
+        endpoint: 0.0.0.0:4318
 
 processors:
   # automatically detect Cloud Run resource metadata
