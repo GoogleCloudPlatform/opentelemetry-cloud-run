@@ -36,6 +36,7 @@ spec:
         - image: "%OTELCOL_IMAGE%"
           name: collector
           startupProbe:
+            initialDelaySeconds: 60
             httpGet:
               path: /
               port: 13133
