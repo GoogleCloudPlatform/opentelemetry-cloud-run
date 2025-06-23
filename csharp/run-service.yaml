@@ -1,0 +1,28 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: "%SERVICE_NAME%"
+  annotations:
+    run.googleapis.com/launch-stage: BETA
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/container-dependencies: "{app:[collector]}"
+    spec:
+      containers:
+      - image: "%SAMPLE_APP_IMAGE%"
+        name: app
+        ports:
+         - containerPort: 8080
+        env:
+        - name: "OTEL_EXPORTER_OTLP_ENDPOINT"
+          value: "http://localhost:4318"
+        - name: "OTEL_SERVICE_NAME"
+          value: "%SERVICE_NAME%"
+      - image: "%OTELCOL_IMAGE%"
+        name: collector
+        startupProbe:
+          httpGet:
+            path: /
+            port: 13133
