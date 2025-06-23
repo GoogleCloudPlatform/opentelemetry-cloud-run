@@ -17,6 +17,13 @@ exports telemetry data to GMP and Cloud Trace.
 * Enable the Artifact Registry API in your Google Cloud project.
 * Authenticate with your Google Cloud project in a local terminal.
 
+Set the desired Google Cloud project for this sample:
+
+```console
+gcloud config set project <project-id>
+```
+Note: Make sure you have the correct credentials for this project.
+
 To enable the depending service APIs with `gcloud` command, you can the following commands.
 
 ```console
@@ -24,6 +31,7 @@ gcloud services enable run.googleapis.com --quiet
 gcloud services enable artifactregistry.googleapis.com --quiet
 gcloud services enable cloudtrace.googleapis.com --quiet
 gcloud services enable monitoring.googleapis.com --quiet
+gcloud services enable cloudbuild.googleapis.com --quiet
 ```
 
 To run the sample app, you will also need to make sure your [Cloud Run Service
@@ -56,6 +64,10 @@ The bundled configuration file for Cloud Build (`cloudbuild.yaml`) requires a ne
 
 Running `create-service-account.sh` creates a new service account `run-otel-example-sa@<project-id>.iam.gserviceaccount.com` for you. Then launch a Cloud Build task with `gcloud` command.
 
+> [!TIP]
+> The service account created using the script is only used for building the application on Google
+> Cloud Build. The Cloud Run service itself uses the default Compute Engine Service Account.
+
 ```console
 ../create-service-account.sh
 gcloud builds submit . --config=cloudbuild.yaml
@@ -64,7 +76,7 @@ gcloud builds submit . --config=cloudbuild.yaml
 After the build, run the following command to check the endpoint URL.
 
 ```console
-gcloud run services describe opentelemetry-cloud-run-sample --region=us-east1 --format="value(status.url)"
+gcloud run services describe opentelemetry-cloud-run-golang-sample --region=us-east1 --format="value(status.url)"
 ```
 
 #### Build and Run Manually
@@ -197,7 +209,7 @@ bundle and deploy your new config.
 After running the demo, please make sure to clean up your project so that you don't consume unexpected resources and get charged.
 
 ```console
-gcloud run services delete opentelemetry-cloud-run-sample --region us-east1 --quiet
+gcloud run services delete opentelemetry-cloud-run-golang-sample --region us-east1 --quiet
 gcloud artifacts repositories delete run-otel-example \
   --location=us-east1 \
   --quiet
