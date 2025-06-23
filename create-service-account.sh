@@ -25,6 +25,9 @@ gcloud iam service-accounts create "${SA_NAME}" \
   --display-name="Cloud Run OpenTelemetry demo service account" \
   --quiet
 
+### Ensure service account is created before moving forwards
+sleep 5
+
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
   --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountUser" \
