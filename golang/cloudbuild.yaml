@@ -82,7 +82,7 @@ steps:
       - DEPLOY_MULTICONTAINER
 
 substitutions:
-  _SERVICE_NAME: opentelemetry-cloud-run-sample
+  _SERVICE_NAME: opentelemetry-cloud-run-golang-sample
   _REGION: us-east1
   _REGISTRY: ${_REGION}-docker.pkg.dev/${PROJECT_ID}/run-otel-example
   _IMAGE_APP: ${_REGISTRY}/sample-app
