@@ -1,0 +1,103 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    env:
+      - "IMAGE_APP=${_IMAGE_APP}"
+    script: |
+      docker build -t ${IMAGE_APP} ./helloworld-csharp
+    id: BUILD_SAMPLE_APP
+    waitFor: ["-"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    env:
+      - "IMAGE_APP=${_IMAGE_APP}"
+    script: |
+      docker push ${IMAGE_APP}
+    id: PUSH_SAMPLE_APP
+    waitFor:
+      - BUILD_SAMPLE_APP
+
+  - name: "gcr.io/cloud-builders/docker"
+    env:
+      - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
+      - "GCP_PROJECT=${PROJECT_ID}"
+    script: |
+      sed -i s@%GOOGLE_CLOUD_PROJECT%@${GCP_PROJECT}@g ./collector/collector-config.yaml
+      docker build -t ${IMAGE_COLLECTOR} ./collector
+    id: BUILD_COLLECTOR
+    waitFor: ["-"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    env:
+      - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
+    script: |
+      docker push ${IMAGE_COLLECTOR}
+    id: PUSH_COLLECTOR
+    waitFor:
+      - BUILD_COLLECTOR
+
+  - name: "ubuntu"
+    env:
+      - "SERVICE_NAME=${_SERVICE_NAME}"
+      - "IMAGE_APP=${_IMAGE_APP}"
+      - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
+    script: |
+      sed -i s@%SERVICE_NAME%@${SERVICE_NAME}@g run-service.yaml
+      sed -i s@%OTELCOL_IMAGE%@${IMAGE_COLLECTOR}@g run-service.yaml
+      sed -i s@%SAMPLE_APP_IMAGE%@${IMAGE_APP}@g run-service.yaml
+    id: REPLACE_YAML_VALUE
+    waitFor: ["-"]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    env:
+      - "REGION=${_REGION}"
+    script: |
+      gcloud run services replace run-service.yaml --region ${REGION} --quiet
+    id: DEPLOY_MULTICONTAINER
+    waitFor:
+      - PUSH_SAMPLE_APP
+      - PUSH_COLLECTOR
+      - REPLACE_YAML_VALUE
+
+  # Comment this step in case you DO NOT wish to allow unauthenticated requests
+  # to your application.
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+    env:
+      - "REGION=${_REGION}"
+      - "SERVICE_NAME=${_SERVICE_NAME}"
+    script: |
+      gcloud run services set-iam-policy ${SERVICE_NAME} policy.yaml --region ${REGION} --quiet
+    id: ALLOW_UNAUTHENTICATED
+    waitFor:
+      - DEPLOY_MULTICONTAINER
+
+substitutions:
+  _SERVICE_NAME: opentelemetry-cloud-run-dotnet-sample
+  _REGION: us-east1
+  _REGISTRY: ${_REGION}-docker.pkg.dev/${PROJECT_ID}/run-otel-example
+  _IMAGE_APP: ${_REGISTRY}/sample-app-dotnet
+  _IMAGE_COLLECTOR: ${_REGISTRY}/collector-dotnet
+  _SA_NAME: run-otel-example-sa
+
+images:
+  - ${_IMAGE_APP}
+  - ${_IMAGE_COLLECTOR}
+
+serviceAccount: "projects/${PROJECT_ID}/serviceAccounts/${_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+
+options:
+  dynamic_substitutions: true
+  logging: CLOUD_LOGGING_ONLY

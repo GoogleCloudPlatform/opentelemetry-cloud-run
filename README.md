@@ -9,4 +9,4 @@ alongside your workload container.
 
 The repository contains guides for the following languages/frameworks:
 1. [Golang](./golang/README.md)
-2. C# (.NET)
+2. [C# (.NET)](./csharp/README.md)
