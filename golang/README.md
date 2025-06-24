@@ -66,7 +66,9 @@ Running `create-service-account.sh` creates a new service account `run-otel-exam
 
 > [!TIP]
 > The service account created using the script is only used for building the application on Google
-> Cloud Build. The Cloud Run service itself uses the default Compute Engine Service Account.
+> Cloud Build. Additionally, this service account can be re-used for building all samples in this
+> repository. \
+> Note that the Cloud Run service itself uses the default Compute Engine Service Account.
 
 ```console
 ../create-service-account.sh
