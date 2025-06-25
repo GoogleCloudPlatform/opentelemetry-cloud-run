@@ -1,8 +1,10 @@
 # Deploy a .NET Cloud Run Service with OpenTelemetry
 
-This guide shows how to run an OpenTelemetry instrumented service written in C# (.NET)
-on Google Cloud Run and export the generated telemetry (metrics, logs, and traces)
-to Google Cloud Observability using OpenTelemetry collector running as a sidecar.
+This guide shows how to run a .NET (C#) service instrumented using 
+[OpenTelemetry Zero-Code instrumentation](https://opentelemetry.io/docs/zero-code/dotnet/)
+on Google Cloud Run and exporting the generated telemetry (metrics,
+logs, and traces) to Google Cloud Observability using OpenTelemetry
+Collector running as a sidecar.
 
 [Learn more about sidecars in Cloud Run here.](https://cloud.google.com/run/docs/deploying#sidecars)
 
