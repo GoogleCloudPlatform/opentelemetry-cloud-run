@@ -33,10 +33,8 @@ Account](https://cloud.google.com/run/docs/configuring/service-accounts) has, at
 minimum, the following IAM roles:
 
 * `roles/monitoring.metricWriter`
-* `roles/cloudtrace.agent`
+* `roles/telemetry.tracesWriter`
 * `roles/logging.logWriter`
-
-The default Compute Engine Service Account has these roles already.
 
 ### Run sample
 
