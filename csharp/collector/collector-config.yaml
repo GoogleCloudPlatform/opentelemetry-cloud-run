@@ -18,7 +18,7 @@ processors:
     spike_limit_percentage: 20
 
   # automatically detect Cloud Run resource metadata
-  resourcedetection:
+  resourcedetection/gcp:
     detectors: [env, gcp]
     timeout: 2s
     override: false
@@ -43,6 +43,26 @@ processors:
 
   metricstarttime:
     strategy: subtract_initial_point
+
+  # Use this processor if you want to transform all logs to a jsonPayload.
+  transform/all_logs_structured:
+    log_statements:
+    - context: log
+      statements:
+      - set(attributes["message"], body)
+      - set(body, attributes)
+
+  # Use this processor if you want to conditionally transform logs to jsonPayload.
+  # This processor only transforms logs when it notices the presence of structured
+  # logs in ILogger for .NET applications.
+  transform/conditional_logs_structured:
+    log_statements:
+    - context: log
+      conditions:
+       - IsMatch(body, ".*\\{[^}]+\\}.*")
+      statements:
+      - set(attributes["message"], body)
+      - set(body, attributes)
 
 exporters:
   googlemanagedprometheus: # Note: this is intentionally left blank
@@ -69,15 +89,15 @@ service:
   - health_check
   - googleclientauth
   pipelines:
-    metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, metricstarttime, resourcedetection, resource, batch]
-      exporters: [googlemanagedprometheus, debug]
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, metricstarttime, resourcedetection/gcp, resource, resource/gcp_project_id, batch]
+    #   exporters: [none]
     traces:
       receivers: [otlp]
-      processors: [batch, memory_limiter, resource/gcp_project_id, resourcedetection]
-      exporters: [otlphttp, debug]
-    logs:
-      receivers: [otlp]
-      processors: [resourcedetection, memory_limiter, batch]
-      exporters: [googlecloud]
+      processors: [batch, memory_limiter, resource/gcp_project_id, resource, resourcedetection/gcp]
+      exporters: [otlphttp]
+    # logs:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, batch, resource, resourcedetection/gcp]
+    #   exporters: [googlecloud]

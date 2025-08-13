@@ -3,6 +3,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0.411-jammy@sha256:e12df6fb2eaa26a07be20ba87
 # install OpenTelemetry .NET Automatic Instrumentation
 ARG OTEL_VERSION=1.11.0
 ENV OTEL_DOTNET_AUTO_HOME=/otel-dotnet-auto
+ENV OTEL_DOTNET_AUTO_LOGS_INCLUDE_FORMATTED_MESSAGE=true
+# We only want traces exported from OpenTelemetry
+ENV OTEL_METRICS_EXPORTER=none
+ENV OTEL_LOGS_EXPORTER=none
 ADD https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/download/v${OTEL_VERSION}/otel-dotnet-auto-install.sh otel-dotnet-auto-install.sh
 RUN apt-get update && apt-get install -y unzip && \
     sh otel-dotnet-auto-install.sh

@@ -2,11 +2,22 @@
 
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 var url = $"http://0.0.0.0:{port}";
+
+builder.Logging.AddJsonConsole(options =>
+{
+    options.IncludeScopes = true;
+    options.TimestampFormat = "HH:mm:ss ";
+    options.JsonWriterOptions = new JsonWriterOptions
+    {
+        Indented = false
+    };
+});
 
 var app = builder.Build();
 
@@ -29,6 +40,8 @@ string HandleRollDice(string? player)
     {
         logger.LogInformation("{player} is rolling the dice: {result}", player, result);
     }
+
+    logger.LogInformation("Standard Logging: Roll dice finished.");
 
     return result.ToString(CultureInfo.InvariantCulture);
 }
