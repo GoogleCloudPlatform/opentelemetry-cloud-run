@@ -72,17 +72,17 @@ steps:
       - PUSH_COLLECTOR
       - REPLACE_YAML_VALUE
 
-  # Comment this step in case you DO NOT wish to allow unauthenticated requests
+  # Un-comment this step in case you DO wish to allow unauthenticated requests
   # to your application.
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
-    env:
-      - "REGION=${_REGION}"
-      - "SERVICE_NAME=${_SERVICE_NAME}"
-    script: |
-      gcloud run services set-iam-policy ${SERVICE_NAME} policy.yaml --region ${REGION} --quiet
-    id: ALLOW_UNAUTHENTICATED
-    waitFor:
-      - DEPLOY_MULTICONTAINER
+  # - name: "gcr.io/google.com/cloudsdktool/cloud-sdk:slim"
+  #   env:
+  #     - "REGION=${_REGION}"
+  #     - "SERVICE_NAME=${_SERVICE_NAME}"
+  #   script: |
+  #     gcloud run services set-iam-policy ${SERVICE_NAME} policy.yaml --region ${REGION} --quiet
+  #   id: ALLOW_UNAUTHENTICATED
+  #   waitFor:
+  #     - DEPLOY_MULTICONTAINER
 
 substitutions:
   _SERVICE_NAME: opentelemetry-cloud-run-dotnet-sample
