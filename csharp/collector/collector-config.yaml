@@ -63,6 +63,25 @@ processors:
       statements:
       - set(attributes["message"], body)
       - set(body, attributes)
+  transform/metrics:
+    # "location", "cluster", "namespace", "job", "instance", and "project_id" are reserved, and 
+    # metrics containing these labels will be rejected.  Prefix them with exported_ to prevent this.
+    # See https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/googlemanagedprometheusexporter/README.md#example-configuration
+    metric_statements:
+    - context: datapoint
+      statements:
+      - set(attributes["exported_location"], attributes["location"])
+      - delete_key(attributes, "location")
+      - set(attributes["exported_cluster"], attributes["cluster"])
+      - delete_key(attributes, "cluster")
+      - set(attributes["exported_namespace"], attributes["namespace"])
+      - delete_key(attributes, "namespace")
+      - set(attributes["exported_job"], attributes["job"])
+      - delete_key(attributes, "job")
+      - set(attributes["exported_instance"], attributes["instance"])
+      - delete_key(attributes, "instance")
+      - set(attributes["exported_project_id"], attributes["project_id"])
+      - delete_key(attributes, "project_id")
 
 exporters:
   googlemanagedprometheus: # Note: this is intentionally left blank
@@ -89,6 +108,10 @@ service:
   - health_check
   - googleclientauth
   pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, transform/metrics, resourcedetection/gcp]
+      exporters: [googlemanagedprometheus]
     traces:
       receivers: [otlp]
       processors: [batch, memory_limiter, resource/gcp_project_id, resource, resourcedetection/gcp]
