@@ -9,6 +9,7 @@ spec:
     metadata:
       annotations:
         run.googleapis.com/container-dependencies: "{app:[collector]}"
+        run.googleapis.com/cpu-throttling: "false"
     spec:
       containers:
       - image: "%SAMPLE_APP_IMAGE%"
