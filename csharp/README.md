@@ -38,6 +38,10 @@ minimum, the following IAM roles:
 
 ### Run sample
 
+#### Enable Log-Trace Correlation
+
+To enable log-trace correlation in Google Cloud, update the value of `TraceGoogleCloudProjectId` key in  `helloworld-csharp/appsettings.json` file. The value should be the ID of the Google Cloud Project where trace data is being written to Google Cloud Trace.
+
 #### Cloud Build
 
 Because this sample requires `docker` or similar container build system for Linux runtime, you can use Cloud Build when you are trying without local Docker support. To enable Cloud Build, you need to enable Cloud Build API in your Google Cloud project.
