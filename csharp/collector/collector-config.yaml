@@ -89,15 +89,7 @@ service:
   - health_check
   - googleclientauth
   pipelines:
-    # metrics:
-    #   receivers: [otlp]
-    #   processors: [memory_limiter, metricstarttime, resourcedetection/gcp, resource, resource/gcp_project_id, batch]
-    #   exporters: [none]
     traces:
       receivers: [otlp]
       processors: [batch, memory_limiter, resource/gcp_project_id, resource, resourcedetection/gcp]
       exporters: [otlphttp]
-    # logs:
-    #   receivers: [otlp]
-    #   processors: [memory_limiter, batch, resource, resourcedetection/gcp]
-    #   exporters: [googlecloud]
