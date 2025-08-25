@@ -40,7 +40,7 @@ minimum, the following IAM roles:
 
 #### Enable Log-Trace Correlation
 
-To enable log-trace correlation in Google Cloud, update the value of `TraceGoogleCloudProjectId` key in  `helloworld-csharp/appsettings.json` file. The value should be the ID of the Google Cloud Project where trace data is being written to Google Cloud Trace.
+To enable log-trace correlation in Google Cloud, update the value of `TraceGoogleCloudProjectId` key in  `opentelemetry-cloud-run/csharp/helloworld-csharp/appsettings.json` file. The value should be the ID of the Google Cloud Project where trace data is being written to Google Cloud Trace.
 
 #### Cloud Build
 
@@ -59,6 +59,9 @@ The bundled configuration file for Cloud Build (`cloudbuild.yaml`) requires a ne
 * `roles/run.admin`
 
 Running `create-service-account.sh` creates a new service account `run-otel-example-sa@<project-id>.iam.gserviceaccount.com` for you. Then launch a Cloud Build task with `gcloud` command.
+
+> [!NOTE]
+> You may need to make the file `create-service-account.sh` executable before running it. You can do it by running `chmod +x create-service-account.sh` from the root of the repository.
 
 > [!TIP]
 > The service account created using the script is only used for building the application on Google
@@ -80,6 +83,9 @@ gcloud run services describe opentelemetry-cloud-run-dotnet-sample --region=us-e
 ### View telemetry in Google Cloud
 
 You can invoke the service using curl command or via the utility script provided in this folder:
+
+> [!NOTE]
+> You may need to make the file `loop_curl.sh` executable before following these steps. You can make the utility script executable by running `chmod +x loop_curl.sh` from `opentelemetry-cloud-run/csharp` directory.
 
 ```console
 CLOUD_RUN_SERVICE_URL=$(gcloud run services describe opentelemetry-cloud-run-dotnet-sample --region=us-east1 --format="value(status.url)")
