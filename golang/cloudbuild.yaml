@@ -33,6 +33,7 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     env:
       - "IMAGE_COLLECTOR=${_IMAGE_COLLECTOR}"
+      - "DOCKER_BUILDKIT=1"
     script: |
       docker build -t ${IMAGE_COLLECTOR} ./collector
     id: BUILD_COLLECTOR
