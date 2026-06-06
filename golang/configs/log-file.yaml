@@ -40,6 +40,8 @@ exporters:
   googlecloud:
     log:
       default_log_name: my-sample-app
+    sending_queue:
+      enabled: false
 
 service:
   extensions: [health_check]
