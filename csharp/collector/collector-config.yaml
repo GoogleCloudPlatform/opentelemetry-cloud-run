@@ -110,7 +110,7 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, batch, transform/metrics, resourcedetection/gcp]
+      processors: [memory_limiter, batch, transform/metrics, resourcedetection/gcp, metricstarttime]
       exporters: [googlemanagedprometheus]
     traces:
       receivers: [otlp]
