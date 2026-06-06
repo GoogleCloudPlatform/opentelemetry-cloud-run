@@ -31,7 +31,9 @@ processors:
     override: false
 
 exporters:
-  googlecloud: # Note: this is intentionally left blank
+  googlecloud:
+    sending_queue:
+      enabled: false
 
 extensions:
   health_check:

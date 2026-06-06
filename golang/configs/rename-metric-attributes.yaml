@@ -52,7 +52,9 @@ processors:
       - delete_key(attributes, "project_id")
 
 exporters:
-  googlemanagedprometheus: # Note: this is intentionally left blank
+  googlemanagedprometheus:
+    sending_queue:
+      enabled: false
 
 extensions:
   health_check:
